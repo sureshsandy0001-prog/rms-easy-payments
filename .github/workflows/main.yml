@@ -1,0 +1,42 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: |
+          if [ -f "Lib/main.dart" ]; then
+            flutter build apk --release -t Lib/main.dart
+          elif [ -f "lib/main.dart" ]; then
+            flutter build apk --release -t lib/main.dart
+          else
+            FILE=$(find . -name "main.dart" | head -n 1)
+            flutter build apk --release -t "$FILE"
+          fi
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: RMS-Easy-Payments-APK
+          path: build/app/outputs/flutter-apk/*.apk
+          
