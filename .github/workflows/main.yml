@@ -20,6 +20,11 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Fix Android v1 embedding
+        run: |
+          rm -rf android
+          flutter create . --platforms=android --org com.rms.easy_payments
+
       - name: Get dependencies
         run: flutter pub get
 
@@ -27,11 +32,8 @@ jobs:
         run: |
           if [ -f "Lib/main.dart" ]; then
             flutter build apk --release -t Lib/main.dart
-          elif [ -f "lib/main.dart" ]; then
-            flutter build apk --release -t lib/main.dart
           else
-            FILE=$(find . -name "main.dart" | head -n 1)
-            flutter build apk --release -t "$FILE"
+            flutter build apk --release -t lib/main.dart
           fi
 
       - name: Upload APK
